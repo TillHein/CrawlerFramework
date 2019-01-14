@@ -1,11 +1,22 @@
 from html.parser import HTMLParser
 import urllib
+import re
 
 class HTMLExtractor(HTMLParser):
 
 	def __init__(self):
 		HTMLParser.__init__(self)
 		self.links = []
+
+        def regextract(self, res):
+            self.links = []
+            try:
+                #regex raw string with href= maybe link in " or ' ends with >
+                urls = re.findall(r'href=[\'"]?([^\'" >]+)', res.read())
+            except Exception as Err:
+                return self.links
+            return self.links
+
 
 	def extract(self, res):
 		self.links = []
