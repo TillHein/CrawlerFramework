@@ -1,6 +1,7 @@
 import networkx as nx
 import os
 import threading
+import json
 from HTMLExtractor import HTMLExtractor
 
 ##Pagerank Algorithm taken from https://www.geeksforgeeks.org/page-rank-algorithm-implementation/
@@ -60,11 +61,11 @@ class PageRank:
 #          return
 
 
-    def getPageRank(self,G, d=0.85, max_iter=60, tol=1.0e-6, weight='weight'):
+    def getPageRank(self,D, d=0.85, max_iter=60, tol=1.0e-6, weight='weight'):
         print('BEGINN PAGE RANK CALCULATION')
-        if len(G) == 0:
+        if len(D) == 0:
             return {}
-
+        G = nx.stochastic_graph(D, weight=weight)
         N = G.number_of_nodes()
         print('Number of nodes: ' + str(N))
         x = dict.fromkeys(G,1.0 / N)
@@ -98,6 +99,11 @@ class PageRank:
 #          G = createGraph()
 #          print(G.adj)
 
+    def saveGraph(self, d):
+        with open('data.json', 'w') as fp:
+            json.dump(data, fp, sort_keys=False, indent=4)
+        return True
+
 class CheckFiles(threading.Thread):
     def __init__(self, filepath, domain):
         threading.Thread.__init__(self)
@@ -123,7 +129,14 @@ class CheckFiles(threading.Thread):
 
 if __name__ == "__main__":
     PR = PageRank()
-    PR.setPath('/media/mumm/INTENSO/Dt')
+    PR.setPath('/Users/webcrawler/Projects/Bachelor/Dt')
     G = PR.createGraph()
+    print('graph complete')
+    print('saving graph')
+    if (PR.saveGraph(G) == True):
+        print('Graph saved')
+    else:
+        print('saving graph failed')
+    print()
     pr = PR.getPageRank(G)
     print(pr)
