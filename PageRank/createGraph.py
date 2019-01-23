@@ -100,8 +100,9 @@ class PageRank:
 #          print(G.adj)
 
     def saveGraph(self, d):
+        data = d.to_dict_of_dicts()
         with open('data.json', 'w') as fp:
-            json.dump(data, fp, sort_keys=False, indent=4)
+            json.dump(data, fp, sort_keys=False, ensure_ascii=False, indent=4)
         return True
 
 class CheckFiles(threading.Thread):
