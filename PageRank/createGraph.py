@@ -60,7 +60,7 @@ class PageRank:
 #          return
 
 
-    def getPageRank(self,G, d=0.85, max_iter=60, tol=1.0e-6):
+    def getPageRank(self,G, d=0.85, max_iter=60, tol=1.0e-6, weight='weight'):
         print('BEGINN PAGE RANK CALCULATION')
         if len(G) == 0:
             return {}
@@ -70,7 +70,7 @@ class PageRank:
         x = dict.fromkeys(G,1.0 / N)
         p = dict.fromkeys(G,1.0 / N)
         dangling_weights = x
-        dangling_nodes = [n for n in G if G.out_degree(n) == 0.0]
+        dangling_nodes = [n for n in G if G.out_degree(n, weight=weight) == 0.0]
         for _ in range(max_iter):
             print('Enter iteration ' + str(_))
             xlast = x 
@@ -81,7 +81,7 @@ class PageRank:
                 # this matrix multiply looks odd because it is 
                 # doing a left multiply x^T=xlast^T*W 
                 for nbr in G[n]: 
-                    x[nbr] += d * xlast[n] * G[n][nbr] 
+                    x[nbr] += d * xlast[n] * G[n][nbr][weight]
                     x[n] += danglesum * dangling_weights[n] + (1.0 - d) * p[n] 
 
             # check convergence, l1 norm 
