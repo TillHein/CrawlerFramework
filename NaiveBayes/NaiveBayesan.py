@@ -20,7 +20,8 @@ class NaiveBayesan:
 					filepath = join(dirpath, filename)
 					with open(filepath, 'r') as r:
 						contents = ''.join(f.readlines())
-						terms = self._tokenize(contents)
+                        cleanContent = self._cleanHTML(contents)
+						terms = self._tokenize(cleanContents)
 						terms.instert(0, classname)
 						csvFile.writerow(terms)
 		f.close()
@@ -29,6 +30,14 @@ class NaiveBayesan:
 		terms = re.findall(r'\w+', text)
 		terms = [term for term in terms if not term.isdigit()]
 		return terms
+
+    def _cleanHTML(self, text):
+        removeTagsRE = re.compile('<.*?>')
+        removeSpaceRE = re.compile(' +|\t+')
+        body = ''.join(re.findall(r'<body.*>.*</body>+', text.replace('\n', '')))
+        cleanText = re.sub(removeTagsRE, ' ', body) 
+        spacefree = re.sub(removeSpaceRE, ' ', cleanText)
+        return spacefree
 
 	def setCsvOutputPath(self,path):
 		self._csvOutput = path
