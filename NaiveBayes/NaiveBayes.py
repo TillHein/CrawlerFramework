@@ -30,7 +30,6 @@ class NaiveBayes(object):
                     self.vocabulary[item] += 1
                     self.classes[klass].setdefault(item, 0)
                     self.classes[klass][item] += 1
-
     def scores(self, document):
         """Returns a dictionary with the scores of the document for every class.
 
@@ -61,13 +60,15 @@ class NaiveBayes(object):
         scores = self.scores(document)
 
         predicted_class = None
-        max_score = None
+        #changed from None to 0
+        max_score = None 
 
         for klass in scores:
+            if max_score == None:
+                max_score = scores[klass]
             if scores[klass] > max_score:
                 max_score = scores[klass]
                 predicted_class = klass
-
         return predicted_class
 
     def perfomance(self, test_documents):
