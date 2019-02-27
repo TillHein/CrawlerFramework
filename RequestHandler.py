@@ -75,6 +75,11 @@ class CheckFiles(AbsRequestHandler):
 
 # Add persistent list of already requested robot rules to limit Network traffic
 # Also find a way to persist RobotFileParse
+
+class Dummy(AbsRequestHandler):
+    def handle(self, request):
+        return request
+
 class CheckRobots(AbsRequestHandler):
 
 	def handle(self, request):
