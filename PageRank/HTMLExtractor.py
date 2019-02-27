@@ -1,5 +1,5 @@
 from html.parser import HTMLParser
-import urllib
+import urllib.parse
 import re
 
 class HTMLExtractor(HTMLParser):
@@ -15,8 +15,20 @@ class HTMLExtractor(HTMLParser):
                 urls = re.findall(r'href=[\'"]?([^\'" >]+)', res.read())
             except Exception as Err:
                 return self.links
+            for url in urls:
+                self.links.append(self.__completeLinks(url))
             return self.links
 
+    def regextractAuthority(self, res):
+            self.links = []
+            try:
+                #regex raw string with href= maybe link in " or ' ends with >
+                urls = re.findall(r'href=[\'"]?([^\'" >]+)', res.read())
+                for url in urls:
+                    self.links.append(self.__canonicalizeLinks(url))
+            except Exception as Err:
+                return self.links
+            return self.links
 
     def extract(self, res):
         self.links = []
@@ -55,6 +67,20 @@ class HTMLExtractor(HTMLParser):
         qs = urllib.parse.quote_plus(qs, ':&=')
         anchor = ''
         return netloc
+
+    # Function only returns base URL (www.abc.de/f/g.html -> abc.de)
+    def __anchorLinks(self, link):
+        parsedLink = urllib.parse.urlparse(link)
+        link = parsedLink.scheme + '://' + parsedLink.netloc + parsedLink.path
+        if parsedLink.scheme == "http" or parsedLink.scheme == "https":
+            return self.__canonicalizeLinks(parsedLink.netloc)
+        elif link.startswith("//"):
+            return self.__canonicalizeLinks(parsedLink.netloc)
+        elif link.startswith("/"):
+            return self.__canonicalizeLinks(self.parsedStartUrl.netloc)
+        else:
+            print('DEBUG: NICHTS GEFUNDEN')
+            return False
 
     def __completeLinks(self, link):
         parsedLink = urllib.parse.urlparse(link)

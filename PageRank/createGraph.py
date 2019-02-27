@@ -36,7 +36,7 @@ class PageRank:
         for root, dirs, files in os.walk(self.path):
             for name in files:
                 filepath = os.path.join(root, name)
-                domain = root.split('/')[4]
+                domain = root.split('/')[7]
                 current = CheckFiles(filepath, domain)
                 threads.append(current)
                 current.start()
@@ -45,6 +45,7 @@ class PageRank:
             t.join()
             print(str(count))
             for link in t.links:
+                print('add Edge: '+ t.domain + link)
                 G.add_edge(t.domain, link)
         return G
 
@@ -88,8 +89,9 @@ class PageRank:
             # check convergence, l1 norm 
             err = sum([abs(x[n] - xlast[n]) for n in x]) 
             if err < N*tol: 
-                return x 
-        raise NetworkXError('pagerank: power iteration failed to converge ''in %d iterations.' % max_iter)
+                print("pagerank: power iteration failed to converge in" + str(iterations))    
+            return x 
+        #raise nx.NetworkXError('pagerank: power iteration failed to converge ''in %d iterations.' % max_iter)
 
 #    def __init__(self):
 #       lock = thread.allocate_lock()
@@ -99,9 +101,9 @@ class PageRank:
 #          G = createGraph()
 #          print(G.adj)
 
-    def saveGraph(self, d):
-        data = d.to_dict_of_dicts()
-        with open('data.json', 'w') as fp:
+    def saveGraph(self, d, name):
+        data = nx.convert.to_dict_of_dicts(d, nodelist=None,edge_data=None)
+        with open(name, 'w') as fp:
             json.dump(data, fp, sort_keys=False, ensure_ascii=False, indent=4)
         return True
 
@@ -122,7 +124,7 @@ class CheckFiles(threading.Thread):
             f.close()
             return
         try:
-            self.links = self.HTMLE.extract(f)
+            self.links = self.HTMLE.regextractAuthority(f)
         except:
             print("Error: failed to extract Links")
         f.close()
@@ -130,14 +132,26 @@ class CheckFiles(threading.Thread):
 
 if __name__ == "__main__":
     PR = PageRank()
-    PR.setPath('/Users/webcrawler/Projects/Bachelor/Dt')
+    PR.setPath('/Users/webcrawler/Projects/Bachelor/CrawlerDataZip/crawler/')
     G = PR.createGraph()
     print('graph complete')
     print('saving graph')
-    if (PR.saveGraph(G) == True):
+    if (PR.saveGraph(G, 'data.json') == True):
         print('Graph saved')
     else:
         print('saving graph failed')
     print()
     pr = PR.getPageRank(G)
+    print('pagerank complete')
+    print('saving pagrerank')
+    jpr = json.dumps(pr, ensure_ascii=False)
+    try:
+        s = open('pagerank.txt', 'w')
+        s.write(jpr)
+    except Exception as ERR:
+        print("wirte to pagerank.txt failed")
+    #if (PR.saveGraph(pr, 'pagerank.json') == True):
+    #    print('pagerank saved')
+    #else:
+    #    print('saving pagerank failed')
     print(pr)

@@ -4,7 +4,7 @@ from os.path import join
 import csv
 from argparse import ArgumentParser
 from random import shuffle
-from naivebayes import NaiveBayes
+from NaiveBayes import NaiveBayes
 
 class NaiveBayesan:
 
@@ -66,4 +66,3 @@ class NaiveBayesan:
 
 	def __init__(self):
 		self.classifier = NavieBayes()
-		
