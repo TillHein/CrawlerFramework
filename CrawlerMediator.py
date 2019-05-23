@@ -16,7 +16,6 @@ class CrawlerMediator:
     """Call this function to start the crawl process"""
     def crawl(self):
         while(self._getNextUrl()):
-            print("crawl in Schleife")
             self._download()
         return
 
