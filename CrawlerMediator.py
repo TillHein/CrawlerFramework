@@ -15,7 +15,8 @@ class CrawlerMediator:
 
     """Call this function to start the crawl process"""
     def crawl(self):
-        while(self._getNextUrl() != None):
+        while(self._getNextUrl()):
+            print("crawl in Schleife")
             self._download()
         return
 
@@ -25,11 +26,13 @@ class CrawlerMediator:
         except Exception:
             self._nextUrl = None
             print('MEDIATPOR: Dequeue Error')
+            return False
+        return True
 
     def _download(self):
         self._configureTimeoutHandler()
         try:
-            self._download.download(_nextUrl)
+            self._downloader.download(self._nextUrl)
         except Exception:
             print('MEDIATOR: Unknown error in download')
 
@@ -63,8 +66,8 @@ class CrawlerMediator:
         self._store = store
         return
     
-    def setDownloadStateContext(self, download):
-        self._download = download
+    def setDownloadStateContext(self, downloader):
+        self._downloader = downloader
         return
 
 
