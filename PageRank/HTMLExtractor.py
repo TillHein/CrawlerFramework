@@ -8,14 +8,14 @@ class HTMLExtractor(HTMLParser):
         HTMLParser.__init__(self)
         self.links = []
 
-        def regextract(self, res):
-            self.links = []
-            try:
-                #regex raw string with href= maybe link in " or ' ends with >
-                urls = re.findall(r'href=[\'"]?([^\'" >]+)', res.read())
-            except Exception as Err:
-                return self.links
+    def regextract(self, res):
+        self.links = []
+        try:
+            #regex raw string with href= maybe link in " or ' ends with >
+            urls = re.findall(r'href=[\'"]?([^\'" >]+)', res.read())
+        except Exception as Err:
             return self.links
+        return self.links
 
 
     def extract(self, res):
@@ -24,9 +24,7 @@ class HTMLExtractor(HTMLParser):
             self.feed(res.read())
             #self.feed(response.read().decode(encoding))
         except Exception as err:
-            if len(self.links) > 0:
-                return self.links
-            return []
+            return self.links
         return self.links
 
 
@@ -47,8 +45,6 @@ class HTMLExtractor(HTMLParser):
     # Remove default filenames (index.html)
     # decode needlessly encoded characters like '%7' -> '~'
     # encode forbidden characters like ' ' -> '%20'
-        
-
         link = str(link)
         scheme, netloc, path, qs, anchor = urllib.parse.urlsplit(link)
         path = urllib.parse.quote(path, '/%')

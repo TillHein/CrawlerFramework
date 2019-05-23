@@ -6,60 +6,38 @@ from HTMLExtractor import HTMLExtractor
 
 ##Pagerank Algorithm taken from https://www.geeksforgeeks.org/page-rank-algorithm-implementation/
 
-# :%s/ \{6}/\t/g
-# path = '/Volumes/INTENSO/Dt'
-path = '/media/mumm/INTENSO/Dt'
 
 class PageRank:
 
     def setPath(self,path):
         self.path = path
 
-    # returns directet NetworkX Graph with nodes equal to domains and edges equal to Links between those
     def createGraph(self):
-        G = nx.DiGraph()
-        nodes = self._createNodeList()
-        for node in nodes:
-            G.add_node(node)
-        G = self._createEdges(G)
-        return G
+        PagerankGraph = nx.DiGraph()
+        nodeList = self._createNodeList()
+        for node in nodeList:
+            PagerankGraph.add_node(node)
+        PagerankGraph = self._createEdges(PagerankGraph)
+        return PagerankGraph
 
-    # returns List of Domainnames
     def _createNodeList(self):
         nodes = os.listdir(self.path)
         return nodes
 
-    # adds Edges to the Graph G and returns it
     def _createEdges(self,G):
-        count = 0
         threads = []
         for root, dirs, files in os.walk(self.path):
             for name in files:
                 filepath = os.path.join(root, name)
                 domain = root.split('/')[4]
-                current = CheckFiles(filepath, domain)
+                current = URLExtractorThread(filepath, domain)
                 threads.append(current)
                 current.start()
         for t in threads:
-            count = count +1
             t.join()
-            print(str(count))
             for link in t.links:
                 G.add_edge(t.domain, link)
         return G
-
-#      #returns list with all outlinks from sourcefile
-#      def _addLinksFrom(self,filepath, G, domain):
-#          print('collecting links from' + filepath)
-#          f = open(filepath, 'r')
-#          links = self.HTMLE.extract(f)
-#          f.close()
-#          for link in links:
-#              lock.acquire()
-#              G.add_edge(domain, link)
-#              lock.release()
-#          return
-
 
     def getPageRank(self,D, d=0.85, max_iter=60, tol=1.0e-6, weight='weight'):
         print('BEGINN PAGE RANK CALCULATION')
@@ -78,7 +56,6 @@ class PageRank:
             x = dict.fromkeys(xlast.keys(), 0) 
             danglesum = d * sum(xlast[n] for n in dangling_nodes) 
             for n in x: 
-
                 # this matrix multiply looks odd because it is 
                 # doing a left multiply x^T=xlast^T*W 
                 for nbr in G[n]: 
@@ -91,13 +68,6 @@ class PageRank:
                 return x 
         raise NetworkXError('pagerank: power iteration failed to converge ''in %d iterations.' % max_iter)
 
-#    def __init__(self):
-#       lock = thread.allocate_lock()
-#       numlock = thread.allocate_lock()
-#       numberOfThreads = 0
-#       threadStarted = False
-#          G = createGraph()
-#          print(G.adj)
 
     def saveGraph(self, d):
         data = d.to_dict_of_dicts()
@@ -105,7 +75,7 @@ class PageRank:
             json.dump(data, fp, sort_keys=False, ensure_ascii=False, indent=4)
         return True
 
-class CheckFiles(threading.Thread):
+class URLExtractorThread(threading.Thread):
     def __init__(self, filepath, domain):
         threading.Thread.__init__(self)
         self.HTMLE = HTMLExtractor()
