@@ -26,7 +26,10 @@ class CrawlerMediator:
             self._nextUrl = None
             print('MEDIATPOR: Dequeue Error')
             return False
-        return True
+        return True if self._hasNextUrl() else False
+
+    def _hasNextUrl(self):
+        return True if self._nextUrl is not None else False
 
     def _download(self):
         self._configureTimeoutHandler()
