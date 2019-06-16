@@ -44,8 +44,8 @@ class BreadthFirstGatherer(AbsFrontierStrategy):
         return len(self.frontier)
 
     def __stripUrl(self, url):
-        parsedUrl = urllib.parse.urlparse(url)
-        return parsedUrl.netloc + parsedUrl.path
+        stripedUrl = urllib.parse.urlparse(url)
+        return stripedUrl.netloc + stripedUrl.path
 
     def __init__(self):
         self.frontier = list()
@@ -53,7 +53,6 @@ class BreadthFirstGatherer(AbsFrontierStrategy):
         self.layer = 0
         self.count = 0
         self.lenght = 0
-
 
     def __canonicalizeLinks(self, link):
     # Remove Port

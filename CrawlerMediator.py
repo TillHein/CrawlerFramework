@@ -22,9 +22,9 @@ class CrawlerMediator:
     def _getNextUrl(self):
         try:
             self._nextUrl = self._frontier.dequeue()
-        except Exception:
+        except Exception as e:
             self._nextUrl = None
-            print('MEDIATPOR: Dequeue Error')
+            print('MEDIATPOR: Dequeue Error' + str(e))
             return False
         return True if self._hasNextUrl() else False
 
@@ -35,8 +35,8 @@ class CrawlerMediator:
         self._configureTimeoutHandler()
         try:
             self._downloader.download(self._nextUrl)
-        except Exception:
-            print('MEDIATOR: Unknown error in download')
+        except Exception as e:
+            print('MEDIATOR: Unknown error in download' + str(e))
 
     def _configureTimeoutHandler(self):
         signal.signal(signal.SIGALRM, timeout_handler)
@@ -46,8 +46,8 @@ class CrawlerMediator:
     def queue(self, url):
         try:
             self._frontier.queue(url)
-        except Exception:
-            print('MEDIATOR: Unknown error in queue')
+        except Exception as e:
+            print('MEDIATOR: Unknown error in queue: ' + str(e))
         return
 
     """Function used by DownloadStateContext to Store Crawled Information
@@ -55,8 +55,8 @@ class CrawlerMediator:
     def store(self, data):
         try:
             self._store.store(data)
-        except Exception:
-            print('MEDIATOR: Unknown error in queue')
+        except Exception as e:
+            print('MEDIATOR: Unknown error in store' + str(e))
         return
     
     """set Functions to connect the different contexts"""
@@ -67,9 +67,7 @@ class CrawlerMediator:
     def setStoreContext(self, store):
         self._store = store
         return
-    
+
     def setDownloadStateContext(self, downloader):
         self._downloader = downloader
         return
-
-
