@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from MediatorBuilder import MediatorBuilder
 
-class FancyName:
+class CrawlerFramework:
 	def run(self):
 		mediatorBuilder = MediatorBuilder()
 		mediatorBuilder.construct()
@@ -12,4 +12,4 @@ class FancyName:
 
 
 if __name__ == '__main__':
-	FancyName().run()
+	CrawlerFramework().run()

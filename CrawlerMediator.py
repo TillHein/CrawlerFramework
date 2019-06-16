@@ -1,28 +1,46 @@
 import signal
 import datetime
+import config
 
-def signal_handler(signum, frame):
+def timeout_handler(signum, frame):
     with open( 'timeout.log' , 'a' )  as t:
         t.write('TIMEOUT: ' + str(datetime.datetime.now()))
     raise Exception ('timed out')
 
 class CrawlerMediator:
+    
+    def __init__(self):
+        self._secondsUntilTimeout = config.timeout
+        self._nextUrl = ""
 
     """Call this function to start the crawl process"""
     def crawl(self):
-        nextUrl = self._frontier.dequeue()
-        while(nextUrl != None):
-            try:
-                signal.signal(signal.SIGALRM, signal_handler)
-                signal.alarm(10)
-                self._download.download(nextUrl)
-            except Exception:
-                print('MEDIATOR: Unknown error in download')
-            try:
-                nextUrl = self._frontier.dequeue()
-            except Exception as e:
-                print('MEDIATPOR: Dequeue Error' + str(e))
+        while(self._getNextUrl()):
+            self._download()
         return
+
+    def _getNextUrl(self):
+        try:
+            self._nextUrl = self._frontier.dequeue()
+        except Exception as e:
+            self._nextUrl = None
+            print('MEDIATPOR: Dequeue Error' + str(e))
+            return False
+        return True if self._hasNextUrl() else False
+
+    def _hasNextUrl(self):
+        return True if self._nextUrl is not None else False
+
+    def _download(self):
+        self._configureTimeoutHandler()
+        try:
+            self._downloader.download(self._nextUrl)
+        except Exception as e:
+            print('MEDIATOR: Unknown error in download' + str(e))
+
+    def _configureTimeoutHandler(self):
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(self._secondsUntilTimeout)
 
     """Function used by DownloadStateContext to Store new URLs"""
     def queue(self, url):
@@ -49,9 +67,7 @@ class CrawlerMediator:
     def setStoreContext(self, store):
         self._store = store
         return
-    
-    def setDownloadStateContext(self, download):
-        self._download = download
+
+    def setDownloadStateContext(self, downloader):
+        self._downloader = downloader
         return
-
-
